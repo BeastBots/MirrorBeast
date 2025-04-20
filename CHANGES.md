@@ -49,4 +49,58 @@ This commit introduces several user experience enhancements to the Mirror Beast 
   - Better organized system stats with cleaner formatting
   - More intuitive button labels for navigation
 
-All enhancements maintain backward compatibility while significantly improving user experience. 
+All enhancements maintain backward compatibility while significantly improving user experience.
+
+# Codebase Refactoring Improvements
+
+This set of changes focuses on improving the codebase structure, error handling, and overall robustness of the Mirror Beast bot:
+
+## 1. Enhanced Exception Handling System
+
+- **Feature**: Implemented a comprehensive exception hierarchy and handling system
+- **Files Added**:
+  - `bot/helper/ext_utils/exceptions.py`: Created hierarchical exception classes
+  - `bot/helper/ext_utils/error_handler.py`: Added centralized error handling utility
+- **Benefits**:
+  - Standardized error handling across the codebase
+  - User-friendly error messages separate from system logs
+  - Better error categorization for debugging
+  - Decorator-based exception handling for cleaner code
+
+## 2. Improved Logging System
+
+- **Feature**: Enhanced logging capabilities with additional features
+- **Files Added**:
+  - `bot/helper/ext_utils/logger.py`: Created advanced logger utility
+- **Benefits**:
+  - Function execution timing capabilities for performance monitoring
+  - Rotating log files with configurable sizes
+  - Context-aware exception logging
+  - Singleton pattern for consistent logging interface
+  - ANSI color-coded terminal output
+
+## 3. Configuration Validation
+
+- **Feature**: Added robust configuration validation system
+- **Files Added**:
+  - `bot/helper/ext_utils/config_validator.py`: Created configuration validation utility
+- **Files Modified**:
+  - `bot/core/config_manager.py`: Updated with validation capabilities
+- **Benefits**:
+  - Type checking for configuration values
+  - Range and constraint validation for numeric configurations
+  - Comprehensive error messages for misconfiguration
+  - Interdependent configuration validation
+
+## 4. Enhanced Command Implementations
+
+- **Feature**: Updated commands with improved error handling and logging
+- **Files Modified**:
+  - `bot/modules/services.py`: Enhanced `/ping` command with better error handling and logging
+- **Benefits**:
+  - More robust command execution
+  - Better error reporting for users
+  - Performance logging for monitoring
+  - Improved maintainability
+
+These refactoring improvements enhance code maintainability, provide better error handling and reporting, and improve the overall robustness of the application. The new structured error handling system allows for more precise error messages for users while maintaining detailed logs for administrators. 

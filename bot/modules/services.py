@@ -25,6 +25,9 @@ from ..helper.telegram_helper.message_utils import (
     send_file,
     send_message,
 )
+from ..helper.ext_utils.error_handler import ErrorHandler
+from ..helper.ext_utils.exceptions import MirrorBeastException, SystemException
+from ..helper.ext_utils.logger import logger
 
 
 @new_task
@@ -161,50 +164,108 @@ async def login(_, message):
 
 
 @new_task
+@ErrorHandler.exception_handler(error_types=(SystemException, Exception))
+@logger.timed_async(level=logger.DEBUG, prefix="[PING] ")
 async def ping(_, message):
-    start_time = monotonic()
-    reply = await send_message(message, "<i>Starting Ping..</i>")
-    end_time = monotonic()
-    
-    # Easter egg: Multiple fun responses for ping command with visual elements
-    ping_responses = [
-        "🏓 <i>Pong! Bot is alive and well!</i>",
-        "⚡ <i>Lightning fast response, as usual!</i>",
-        "🧠 <i>Still thinking... just kidding!</i>",
-        "🔄 <i>All systems operational, captain!</i>",
-        "🎯 <i>Bullseye! Target response acquired!</i>",
-        "👻 <i>BOO! Did I scare you?</i>",
-        "🤖 <i>Beep boop! Robot functioning normally.</i>",
-        "🐢 <i>I'm not slow, just thoughtful...</i>",
-        "🚀 <i>Faster than a speeding download!</i>",
-        "💤 <i>*yawns* Yes, I'm awake...</i>",
-        "🏆 <i>Achievement unlocked: Pinged a bot!</i>",
-        "🌟 <i>Shining bright and responding right!</i>",
-        "🎮 <i>Player 1: Ping | Player 2: Pong</i>",
-        "💫 <i>Still here, still fabulous!</i>",
-        "🧩 <i>All pieces connected successfully!</i>",
-    ]
-    
-    # Get ping time in ms
-    ping_time = int((end_time - start_time) * 1000)
-    
-    # Add visual indicators based on ping speed
-    if ping_time < 100:
-        speed_indicator = "🟢 Blazing Fast"
-    elif ping_time < 300:
-        speed_indicator = "🟡 Pretty Good"
-    else:
-        speed_indicator = "🔴 Could Be Better"
-    
-    # Create a visual ping bar
-    bar_length = min(10, max(1, int(1000 / max(ping_time, 1))))
-    ping_bar = "█" * bar_length + "▒" * (10 - bar_length)
-    
-    response = choice(ping_responses)
-    
-    await edit_message(
-        reply, f"{response}\n\n<code>Ping: {ping_time} ms | {speed_indicator}</code>\n<code>[{ping_bar}]</code>"
-    )
+    try:
+        start_time = monotonic()
+        reply = await send_message(message, "<i>Starting Ping..</i>")
+        end_time = monotonic()
+        
+        # Easter egg: Multiple fun responses for ping command with visual elements and ASCII art
+        ping_responses = [
+            "🏓 <i>Pong! Bot is alive and well!</i>",
+            "⚡ <i>Lightning fast response, as usual!</i>",
+            "🧠 <i>Still thinking... just kidding!</i>",
+            "🔄 <i>All systems operational, captain!</i>",
+            "🎯 <i>Bullseye! Target response acquired!</i>",
+            "👻 <i>BOO! Did I scare you?</i>",
+            "🤖 <i>Beep boop! Robot functioning normally.</i>",
+            "🐢 <i>I'm not slow, just thoughtful...</i>",
+            "🚀 <i>Faster than a speeding download!</i>",
+            "💤 <i>*yawns* Yes, I'm awake...</i>",
+            "🏆 <i>Achievement unlocked: Pinged a bot!</i>",
+            "🌟 <i>Shining bright and responding right!</i>",
+            "🎮 <i>Player 1: Ping | Player 2: Pong</i>",
+            "💫 <i>Still here, still fabulous!</i>",
+            "🧩 <i>All pieces connected successfully!</i>",
+            "🐱 <i>Meow! Did someone call?</i>",
+            "🔋 <i>Fully charged and ready to go!</i>",
+            "🧙‍♂️ <i>Your ping has summoned me!</i>",
+            "🎲 <i>Rolling the dice... you got a ping!</i>",
+            "🎭 <i>To ping or not to ping, that is the question.</i>",
+        ]
+        
+        # ASCII art collection for extra flair
+        ascii_art = [
+            # Robot
+            "<pre>  _____\n |[o o]|\n  ¯¯V¯¯ </pre>",
+            # Rocket
+            "<pre>  /\\\n /  \\\n|    |\n|MBot|\n|    |\n|____|\n</pre>",
+            # Ping pong paddle
+            "<pre>  ___\n |   |\n |___|\n  | |</pre>",
+            # Lightning
+            "<pre>    /\\\n   /  \\\n  /____\\\n     /\n    /</pre>",
+            # Simple heart
+            "<pre>  /\\/\\\n /    \\\n \\    /\n  \\/\\/</pre>",
+        ]
+        
+        # Get ping time in ms
+        ping_time = int((end_time - start_time) * 1000)
+        logger.info(f"Ping time: {ping_time}ms")
+        
+        # Add visual indicators based on ping speed
+        if ping_time < 100:
+            speed_indicator = "🟢 Blazing Fast"
+        elif ping_time < 300:
+            speed_indicator = "🟡 Pretty Good"
+        else:
+            speed_indicator = "🔴 Could Be Better"
+        
+        # Create a visual ping bar
+        bar_length = min(10, max(1, int(1000 / max(ping_time, 1))))
+        ping_bar = "█" * bar_length + "▒" * (10 - bar_length)
+        
+        # Special animations based on ping time
+        if ping_time < 100:
+            loading_animation = "⚡ ▰▰▰▰▰▰▰▰▰▰ ⚡"
+        elif ping_time < 300:
+            loading_animation = "✓ ▰▰▰▰▰▱▱▱▱▱ ○"
+        else:
+            loading_animation = "○ ▰▰▰▱▱▱▱▱▱▱ ×"
+        
+        # Pick a random message and possibly include ASCII art (30% chance)
+        response = choice(ping_responses)
+        
+        # Construct final message with possible ASCII art
+        final_message = f"{response}\n\n<code>Ping: {ping_time} ms | {speed_indicator}</code>\n<code>[{ping_bar}]</code>\n<code>{loading_animation}</code>"
+        
+        # Add ASCII art with 30% probability
+        if choice([True, False, False, False]):
+            final_message = f"{final_message}\n\n{choice(ascii_art)}"
+        
+        # Add special easter egg message for extreme values
+        if ping_time < 50:
+            final_message += "\n\n<i>Wow! That was lightning fast! ⚡</i>"
+        elif ping_time > 500:
+            final_message += "\n\n<i>I'm feeling a bit sluggish today... 🐌</i>"
+        
+        # Secret easter egg for specific dates (like April 1st)
+        current_time = time()
+        import datetime
+        current_date = datetime.datetime.fromtimestamp(current_time)
+        
+        if current_date.month == 4 and current_date.day == 1:
+            final_message += "\n\n<i>🎭 April Fools! The real ping is... a secret! 🎭</i>"
+        elif current_date.month == 12 and current_date.day == 25:
+            final_message += "\n\n<i>🎄 Merry Christmas! Here's a ping as my gift to you! 🎁</i>"
+        
+        await edit_message(reply, final_message)
+    except Exception as e:
+        # This will be caught by the decorator, but we include it for completeness
+        logger.log_exception(e, {"command": "ping", "user_id": message.from_user.id})
+        raise SystemException(f"Failed to execute ping command: {str(e)}", 
+                             "Failed to check bot status. Please try again later.")
 
 
 @new_task

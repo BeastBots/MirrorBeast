@@ -1,6 +1,9 @@
 from importlib import import_module
 from os import getenv
 
+from ..helper.ext_utils.config_validator import ConfigValidator
+from ..helper.ext_utils.exceptions import ConfigException
+
 
 class Config:
     AS_DOCUMENT = False
@@ -125,8 +128,20 @@ class Config:
 
     @classmethod
     def load(cls):
+        """
+        Load configuration from config file and environment variables, then validate.
+        """
         cls.load_config()
         cls.load_env()
+        
+        # Validate the configuration after loading
+        try:
+            cls.validate_config()
+        except ConfigException as e:
+            # Log error but don't stop execution, as some errors might be non-critical
+            from ... import LOGGER
+            LOGGER.error(f"Configuration validation failed: {e.message}")
+            LOGGER.warning("Bot may not function correctly with invalid configuration!")
 
     @classmethod
     def load_config(cls):
@@ -220,6 +235,34 @@ class Config:
                 value = value.strip()
             if not value:
                 raise ValueError(f"{key} variable is missing!")
+
+    @classmethod
+    def validate_config(cls):
+        """
+        Validate the configuration using ConfigValidator.
+        """
+        config_dict = cls.get_all()
+        ConfigValidator.validate_config(config_dict)
+        
+        # Additional validations specific to Config class that aren't in the validator
+        if cls.LEECH_SPLIT_SIZE and cls.LEECH_SPLIT_SIZE > 2097152000 and not cls.PREMIUM_USER:
+            raise ConfigException(
+                "LEECH_SPLIT_SIZE is too large for non-premium users. Maximum is 2GB.",
+                "Leech split size is set too high. Contact the bot administrator."
+            )
+        
+        # Validate interdependent configurations
+        if cls.RSS_CHAT and not cls.RSS_DELAY:
+            raise ConfigException(
+                "RSS_DELAY must be set when RSS_CHAT is enabled",
+                "RSS configuration is incomplete. Contact the bot administrator."
+            )
+        
+        if cls.RCLONE_SERVE_URL and not (cls.RCLONE_SERVE_USER and cls.RCLONE_SERVE_PASS):
+            raise ConfigException(
+                "RCLONE_SERVE_USER and RCLONE_SERVE_PASS must be set when RCLONE_SERVE_URL is enabled",
+                "Rclone serve configuration is incomplete. Contact the bot administrator."
+            )
 
 
 class BinConfig:

@@ -4,6 +4,7 @@ aiohttp
 aioshutil
 anytree
 apscheduler
+aria2p
 aioaria2
 aioqbt
 cinemagoer
