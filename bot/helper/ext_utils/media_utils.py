@@ -241,6 +241,8 @@ async def get_video_thumbnail(video_file, duration):
     if duration == 0:
         duration = 3
     duration = duration // 2
+    
+    # Primary method - scaling approach for high resolution videos
     cmd = [
         BinConfig.FFMPEG_NAME,
         "-hide_banner",
@@ -251,28 +253,80 @@ async def get_video_thumbnail(video_file, duration):
         "-i",
         video_file,
         "-vf",
-        "thumbnail",
+        "scale=640:-1",
         "-q:v",
-        "1",
-        "-frames:v",
+        "5",
+        "-vframes",
         "1",
         "-threads",
-        f"{max(1, cpu_no // 2)}",
+        "1",
         output,
     ]
+    
     try:
         _, err, code = await wait_for(cmd_exec(cmd), timeout=60)
         if code != 0 or not await aiopath.exists(output):
-            LOGGER.error(
-                f"Error while extracting thumbnail from video. Name: {video_file} stderr: {err}"
+            LOGGER.warning(
+                f"First thumbnail generation attempt failed for video: {video_file}, trying fallback method. Error: {err}"
             )
-            return None
-    except Exception:
+            
+            # Fallback method - simpler approach as last resort
+            fallback_cmd = [
+                BinConfig.FFMPEG_NAME,
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-ss",
+                f"{duration}",
+                "-i",
+                video_file,
+                "-q:v",
+                "10",  # Lower quality but faster processing
+                "-frames:v",
+                "1",
+                "-y",  # Overwrite output files without asking
+                output,
+            ]
+            
+            try:
+                _, err, code = await wait_for(cmd_exec(fallback_cmd), timeout=30)  # Shorter timeout for fallback
+                if code != 0 or not await aiopath.exists(output):
+                    LOGGER.error(
+                        f"All thumbnail generation attempts failed for video: {video_file}. Error: {err}"
+                    )
+                    return None
+            except Exception as e:
+                LOGGER.error(f"Fallback method failed with error: {str(e)}")
+                # Try one last desperate attempt with minimal options
+                last_cmd = [
+                    BinConfig.FFMPEG_NAME,
+                    "-ss", 
+                    "1", 
+                    "-i", 
+                    video_file, 
+                    "-frames:v", 
+                    "1", 
+                    "-y", 
+                    output
+                ]
+                try:
+                    await wait_for(cmd_exec(last_cmd), timeout=20)
+                    if await aiopath.exists(output):
+                        return output
+                except:
+                    pass
+                return None
+        
+        return output
+    except Exception as e:
         LOGGER.error(
-            f"Error while extracting thumbnail from video. Name: {video_file}. Error: Timeout some issues with ffmpeg with specific arch!"
+            f"Error while extracting thumbnail from video. Name: {video_file}. Error: {str(e)}"
         )
+        # Clean up any partially created files
+        with suppress(Exception):
+            if await aiopath.exists(output):
+                await remove(output)
         return None
-    return output
 
 
 async def get_multiple_frames_thumbnail(video_file, layout, keep_screenshots):

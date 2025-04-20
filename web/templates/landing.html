@@ -58,6 +58,16 @@
             opacity: 0.15;
             filter: blur(70px);
             z-index: 0;
+            animation: backgroundShift 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes backgroundShift {
+            0% {
+                background-position: 0% 0%;
+            }
+            100% {
+                background-position: 100% 100%;
+            }
         }
 
         .content {
@@ -73,6 +83,8 @@
                 inset 0 0 30px rgba(33, 150, 243, 0.1);
             border: 1px solid rgba(33, 150, 243, 0.1);
             animation: contentAppear 1s ease-out;
+            max-width: 1000px;
+            width: 100%;
         }
 
         @keyframes contentAppear {
@@ -128,6 +140,10 @@
             color: var(--primary-blue);
             margin-bottom: 1rem;
             font-weight: 600;
+            background: rgba(33, 150, 243, 0.1);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
         }
 
         .links {
@@ -135,6 +151,7 @@
             justify-content: center;
             gap: 1rem;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
         .button {
@@ -228,6 +245,46 @@
             font-weight: 600;
             margin-bottom: 0.2rem;
         }
+
+        .feature-description {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            height: 0;
+            overflow: hidden;
+            transition: height 0.3s ease;
+        }
+
+        .feature-item:hover .feature-description {
+            height: 40px;
+        }
+
+        .advantages {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .advantage-item {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-blue);
+            text-align: left;
+        }
+
+        .advantage-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-teal);
+        }
+
+        .advantage-description {
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -236,25 +293,50 @@
         <div class="content">
             <img src="https://i.imgur.com/dX6GoKH.png" alt="Mirror Beast Logo" class="logo">
             <h1>Mirror Beast</h1>
-            <div class="version">v1.0.0-beast</div>
+            <div class="version">v1.0.1-beast</div>
             <p class="subtitle">Your Ultimate Telegram Mirror/Leech Bot</p>
             
             <div class="feature-grid">
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-cloud-download-alt"></i></div>
                     <div class="feature-title">Multi-source</div>
+                    <div class="feature-description">Direct links, torrents, Telegram files and more</div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-cloud-upload-alt"></i></div>
                     <div class="feature-title">Cloud Upload</div>
+                    <div class="feature-description">Google Drive, Rclone and more cloud options</div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-film"></i></div>
                     <div class="feature-title">Media Tools</div>
+                    <div class="feature-description">IMDb info, custom thumbnails, subtitles</div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-search"></i></div>
                     <div class="feature-title">Search</div>
+                    <div class="feature-description">Find torrents, IMDb data, and more</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-file-archive"></i></div>
+                    <div class="feature-title">Archive</div>
+                    <div class="feature-description">Extract and create archives easily</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <div class="feature-title">Speed</div>
+                    <div class="feature-description">High-speed downloads and leech</div>
+                </div>
+            </div>
+            
+            <div class="advantages">
+                <div class="advantage-item">
+                    <div class="advantage-title"><i class="fas fa-user-shield"></i> Authorized Users</div>
+                    <div class="advantage-description">Protect your bot with user authorization and advanced permissions system</div>
+                </div>
+                <div class="advantage-item">
+                    <div class="advantage-title"><i class="fas fa-tasks"></i> Task Management</div>
+                    <div class="advantage-description">Manage multiple tasks with queuing system and advanced controls</div>
                 </div>
             </div>
             
@@ -262,6 +344,7 @@
                 <a href="{{ BASE_URL }}/page" class="button">Web Interface <i class="fas fa-external-link-alt"></i></a>
                 <a href="https://t.me/MirrorBeast" target="_blank" class="button">Telegram Channel <i class="fab fa-telegram"></i></a>
                 <a href="https://t.me/MirrorBeastGroup" target="_blank" class="button">Leech Group <i class="fab fa-telegram"></i></a>
+                <a href="https://t.me/MirrorBeastSupport" target="_blank" class="button">Support Group <i class="fas fa-headset"></i></a>
             </div>
             
             <p class="tagline">Powerful • Feature-rich • User-friendly</p>

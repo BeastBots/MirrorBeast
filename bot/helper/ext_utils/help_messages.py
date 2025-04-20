@@ -199,6 +199,29 @@ force_start = """<b>Force Start</b>: -f -fd -fu
 /cmd link -fd (force download only)
 /cmd link -fu (force upload directly after download finish)"""
 
+beast_help = """
+<b>📚 MIRROR BEAST COMMANDS:</b>
+
+<b>Public Commands:</b>
+• /mirror, /m - Mirror to Google Drive
+• /leech - Leech to Telegram
+• /clone - Clone Google Drive files
+• /count - Count files in Drive folder
+• /search - Search for torrents
+• /ytdl - Download YouTube videos
+• /status - Check downloads status
+
+<b>Advanced Parameters:</b>
+• -up - Upload to specific folder ID
+• -fd - Force download specific media format
+• -z - Compress before upload
+• -e - Extract archive files
+
+<b>Need Help?</b>
+• Join our support group: @MirrorBeastSupport
+• Visit our channel: @MirrorBeast
+"""
+
 gdrive = """<b>Gdrive</b>: link
 If DEFAULT_UPLOAD is `rc` then you can pass up: `gd` to upload using gdrive tools to GDRIVE_ID.
 /cmd gdriveLink or gdl or gdriveId -up gdl or gdriveId or gd
@@ -345,46 +368,39 @@ PASSWORD_ERROR_MESSAGE = """
 <b>Example:</b> link::my password
 """
 
+help_string = """
+<b>📚 MIRROR BEAST BOT HELP</b>
 
-help_string = f"""
-NOTE: Try each command without any argument to see more detalis.
-/{BotCommands.MirrorCommand[0]} or /{BotCommands.MirrorCommand[1]}: Start mirroring to cloud.
-/{BotCommands.QbMirrorCommand[0]} or /{BotCommands.QbMirrorCommand[1]}: Start Mirroring to cloud using qBittorrent.
-/{BotCommands.JdMirrorCommand[0]} or /{BotCommands.JdMirrorCommand[1]}: Start Mirroring to cloud using JDownloader.
-/{BotCommands.NzbMirrorCommand[0]} or /{BotCommands.NzbMirrorCommand[1]}: Start Mirroring to cloud using Sabnzbd.
-/{BotCommands.YtdlCommand[0]} or /{BotCommands.YtdlCommand[1]}: Mirror yt-dlp supported link.
-/{BotCommands.LeechCommand[0]} or /{BotCommands.LeechCommand[1]}: Start leeching to Telegram.
-/{BotCommands.QbLeechCommand[0]} or /{BotCommands.QbLeechCommand[1]}: Start leeching using qBittorrent.
-/{BotCommands.JdLeechCommand[0]} or /{BotCommands.JdLeechCommand[1]}: Start leeching using JDownloader.
-/{BotCommands.NzbLeechCommand[0]} or /{BotCommands.NzbLeechCommand[1]}: Start leeching using Sabnzbd.
-/{BotCommands.YtdlLeechCommand[0]} or /{BotCommands.YtdlLeechCommand[1]}: Leech yt-dlp supported link.
-/{BotCommands.CloneCommand} [drive_url]: Copy file/folder to Google Drive.
-/{BotCommands.CountCommand} [drive_url]: Count file/folder of Google Drive.
-/{BotCommands.DeleteCommand} [drive_url]: Delete file/folder from Google Drive (Only Owner & Sudo).
-/{BotCommands.UserSetCommand[0]} or /{BotCommands.UserSetCommand[1]} [query]: Users settings.
-/{BotCommands.BotSetCommand[0]} or /{BotCommands.BotSetCommand[1]} [query]: Bot settings.
-/{BotCommands.SelectCommand}: Select files from torrents or nzb by gid or reply.
-/{BotCommands.CancelTaskCommand[0]} or /{BotCommands.CancelTaskCommand[1]} [gid]: Cancel task by gid or reply.
-/{BotCommands.ForceStartCommand[0]} or /{BotCommands.ForceStartCommand[1]} [gid]: Force start task by gid or reply.
-/{BotCommands.CancelAllCommand} [query]: Cancel all [status] tasks.
-/{BotCommands.ListCommand} [query]: Search in Google Drive(s).
-/{BotCommands.SearchCommand} [query]: Search for torrents with API.
-/{BotCommands.MediaInfoCommand[0]} or /{BotCommands.MediaInfoCommand[1]} [query]: Get media info.
-/{BotCommands.StatusCommand}: Shows a status of all the downloads.
-/{BotCommands.StatsCommand}: Show stats of the machine where the bot is hosted in.
-/{BotCommands.PingCommand}: Check how long it takes to Ping the Bot (Only Owner & Sudo).
-/{BotCommands.AuthorizeCommand}: Authorize a chat or a user to use the bot (Only Owner & Sudo).
-/{BotCommands.UnAuthorizeCommand}: Unauthorize a chat or a user to use the bot (Only Owner & Sudo).
-/{BotCommands.UsersCommand}: show users settings (Only Owner & Sudo).
-/{BotCommands.AddSudoCommand}: Add sudo user (Only Owner).
-/{BotCommands.RmSudoCommand}: Remove sudo users (Only Owner).
-/{BotCommands.RestartCommand}: Restart and update the bot (Only Owner & Sudo).
-/{BotCommands.LogCommand}: Get a log file of the bot. Handy for getting crash reports (Only Owner & Sudo).
-/{BotCommands.ShellCommand}: Run shell commands (Only Owner).
-/{BotCommands.AExecCommand}: Exec async functions (Only Owner).
-/{BotCommands.ExecCommand}: Exec sync functions (Only Owner).
-/{BotCommands.ClearLocalsCommand}: Clear {BotCommands.AExecCommand} or {BotCommands.ExecCommand} locals (Only Owner).
-/{BotCommands.RssCommand}: RSS Menu.
+<b>🔹 Basic Commands:</b>
+/mirror [url/magnet] - Mirror to Google Drive
+/leech [url/magnet] - Leech to Telegram
+/clone [drive_url] - Copy to Google Drive
+/count [drive_url] - Count files in Drive
+/ytdl [yt_url] - Download YouTube content
+/search [query] - Search for torrents
+/status - Show downloads status
+/cancel - Cancel specific download
+/cancelall - Cancel all downloads
+
+<b>🔹 Advanced Options:</b>
+-up (folder_id) - Upload to specific folder
+-select (numbers) - Select specific files
+-zip - Make zip of contents
+-extract - Extract archive files
+-sd - Use custom filename
+-ud - Direct upload to cloud
+
+<b>🔹 Bot Management:</b>
+/auth - Authorize a chat or user
+/unauth - Unauthorize a chat or user
+/addsudo - Add sudo user
+/rmsudo - Remove sudo user
+/restart - Restart the bot
+/log - Get bot logs
+
+<b>⚙️ Need more help?</b>
+Join @MirrorBeastSupport for assistance
+</b>
 """
 
 BOT_COMMANDS = {

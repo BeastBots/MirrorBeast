@@ -2,6 +2,7 @@ from html import escape
 from time import monotonic, time
 from uuid import uuid4
 from re import match
+from random import choice
 
 from aiofiles import open as aiopen
 from cloudscraper import create_scraper
@@ -32,12 +33,12 @@ async def start(_, message):
     lang = Language()
     buttons = ButtonMaker()
     buttons.url_button(
-        lang.START_BUTTON1, "https://www.github.com/SilentDemonSD/WZML-X"
+        lang.START_BUTTON1, "https://github.com/BeastBots/MirrorBeast"
     )
-    buttons.url_button(lang.START_BUTTON2, "https://t.me/WZML_X")
+    buttons.url_button(lang.START_BUTTON2, "https://t.me/MirrorBeast")
     reply_markup = buttons.build_menu(2)
 
-    if len(message.command) > 1 and message.command[1] == "wzmlx":
+    if len(message.command) > 1 and message.command[1] == "beast":
         await delete_message(message)
     elif len(message.command) > 1 and message.command[1] != "start":
         decrypted_url = decode_slink(message.command[1])
@@ -98,7 +99,7 @@ async def start(_, message):
     else:
         await send_message(
             message,
-            "<i>Bot can mirror/leech from links|tgfiles|torrents|nzb|rclone-cloud to any rclone cloud, Google Drive or to telegram.\n\n⚠️ You Are not authorized user! Deploy your own WZML-X bot</i>",
+            "<i>Bot can mirror/leech from links|tgfiles|torrents|nzb|rclone-cloud to any rclone cloud, Google Drive or to telegram.\n\n⚠️ You Are not authorized user! Use it in @MirrorBeastGroup</i>",
             reply_markup,
         )
     await database.set_pm_users(userid)
@@ -164,8 +165,25 @@ async def ping(_, message):
     start_time = monotonic()
     reply = await send_message(message, "<i>Starting Ping..</i>")
     end_time = monotonic()
+    
+    # Easter egg: Multiple fun responses for ping command
+    ping_responses = [
+        "<i>Pong! I'm still alive!</i>",
+        "<i>Are we playing ping pong now?</i>",
+        "<i>Get a life! Still checking if I'm online?</i>",
+        "<i>I'm faster than your reflexes!</i>",
+        "<i>Still here, unfortunately...</i>",
+        "<i>*yawns* Yes, I'm awake...</i>",
+        "<i>Achievement unlocked: Pinged a bot!</i>",
+        "<i>Ping received, sending virtual high-five!</i>",
+        "<i>Roses are red, violets are blue, your ping is done, I'm alive too!</i>",
+    ]
+    
+    response = choice(ping_responses)
+    ping_time = int((end_time - start_time) * 1000)
+    
     await edit_message(
-        reply, f"<i>Pong!</i>\n <code>{int((end_time - start_time) * 1000)} ms</code>"
+        reply, f"{response}\n<code>{ping_time} ms</code>"
     )
 
 

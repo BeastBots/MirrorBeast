@@ -12,6 +12,22 @@ from ..modules import *
 from .tg_client import TgClient
 
 
+async def save_to_saved_messages(_, query):
+    """Forwards the message to user's Saved Messages when they click the save button"""
+    user_id = query.from_user.id
+    message = query.message
+    
+    if not query.data.startswith("save_"):
+        return
+    
+    try:
+        # Forward the message to user's saved messages
+        await message.forward(user_id)
+        await query.answer("Message sent to your Saved Messages!", show_alert=True)
+    except Exception as e:
+        await query.answer(f"Error: {str(e)}", show_alert=True)
+
+
 def add_handlers():
     TgClient.bot.add_handler(
         MessageHandler(
@@ -413,3 +429,8 @@ def add_handlers():
                 if cmds is not None
             ]
         )
+
+    # Add handler for save to saved messages button
+    TgClient.bot.add_handler(
+        CallbackQueryHandler(save_to_saved_messages, filters=regex("^save_"))
+    )

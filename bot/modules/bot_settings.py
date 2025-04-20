@@ -97,7 +97,58 @@ async def get_buttons(key=None, edit_type=None, edit_mode=False):
                 "TG_PROXY",
             ]:
                 msg += "Restart required for this edit to take effect! You will not see the changes in bot vars, the edit will be in database only!\n\n"
-            msg += f"Send a valid value for {key}. Current value is '{Config.get(key)}'. Timeout: 60 sec"
+            if key in [
+                "AS_DOCUMENT",
+                "BOT_PM",
+                "DELETE_LINKS",
+                "EQUAL_SPLITS",
+                "INCOMPLETE_TASK_NOTIFIER",
+                "IS_TEAM_DRIVE",
+                "CLEAN_LOG_MSG",
+                "MEDIA_GROUP",
+                "STOP_DUPLICATE",
+                "USER_TRANSMISSION",
+                "USE_SERVICE_ACCOUNTS",
+                "WEB_PINCODE",
+                "SHOW_CLOUD_LINKS",
+            ]:
+                if key == "AS_DOCUMENT":
+                    msg += f"Choose whether to send video/audio files as a document or streamable file. Current value is {Config.get(key)}."
+                elif key == "SHOW_CLOUD_LINKS":
+                    msg += f"Choose whether to show cloud links (Drive/Rclone) in task completion messages. Current value is {Config.get(key)}."
+                elif key == "BOT_PM":
+                    msg += f"Choose for sending files in users' PM. Current value is {Config.get(key)}."
+                elif key == "DELETE_LINKS":
+                    msg += f"Choose for removing all files from your links channel after the task is completed. Current value is {Config.get(key)}."
+                elif key == "EQUAL_SPLITS":
+                    msg += f"Choose whether to split files in equal parts. Current value is {Config.get(key)}."
+                elif key == "INCOMPLETE_TASK_NOTIFIER":
+                    msg += f"Choose for triggering all incomplete tasks from the database upon restart. Choose it if you use database for storage. Current value is {Config.get(key)}."
+                elif key == "IS_TEAM_DRIVE":
+                    msg += f"Choose for using GDRIVE_ID as TeamDrive. Current value is {Config.get(key)}."
+                elif key == "CLEAN_LOG_MSG":
+                    msg += f"Choose whether to delete your logs from chat. Current value is {Config.get(key)}."
+                elif key == "MEDIA_GROUP":
+                    msg += f"Choose whether to send media as a group. Current value is {Config.get(key)}."
+                elif key == "STOP_DUPLICATE":
+                    msg += f"Choose whether to check for duplicate files before uploading to GDrive. Current value is {Config.get(key)}."
+                elif key == "USER_TRANSMISSION":
+                    msg += f"Choose whether users can use transmission. Current value is {Config.get(key)}."
+                elif key == "USE_SERVICE_ACCOUNTS":
+                    msg += f"Choose whether to use service accounts for GDrive upload. Current value is {Config.get(key)}."
+                elif key == "WEB_PINCODE":
+                    msg += f"Choose whether to ask for pincode on selecting files from torrent. Current value is {Config.get(key)}."
+                buttons.data_button("True", f"botset editvar {key} on")
+                buttons.data_button("False", f"botset editvar {key} off")
+            elif key in ["HELP_BUTTONS", "SET_COMMANDS", "RATE_LIMIT_SYSTEM"]:
+                if key == "HELP_BUTTONS":
+                    msg += f"Choose between buttons and text for user help message. Current value is {Config.get(key)}."
+                elif key == "SET_COMMANDS":
+                    msg += f"Choose whether to set commands for bot. Current value is {Config.get(key)}."
+                buttons.data_button("True", f"botset editvar {key} on")
+                buttons.data_button("False", f"botset editvar {key} off")
+            else:
+                msg += f"Send a valid value for {key}. Current value is '{Config.get(key)}'. Timeout: 60 sec"
         elif edit_type == "ariavar":
             buttons.data_button("Back", "botset aria")
             if key != "newkey":
@@ -625,6 +676,16 @@ async def edit_bot_settings(client, query):
             globals()["start"] = 0
         await query.answer()
         await update_buttons(message, data[1])
+    elif data[1] == "editvar":
+        await query.answer()
+        key, value = data[2], data[3]
+        if value == "on":
+            value = True
+        elif value == "off":
+            value = False
+        Config.set(key, value)
+        await database.update_config({key: value})
+        await update_buttons(message, "var")
     elif data[1] == "resetvar":
         await query.answer()
         value = ""

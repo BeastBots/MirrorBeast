@@ -99,6 +99,9 @@ Key configuration sections:
 - User access control
 - Media processing options
 
+New features:
+- `SHOW_CLOUD_LINKS`: Toggle visibility of cloud storage links (Drive/Rclone) in task completion messages
+
 ---
 
 # 🤖 Bot Commands

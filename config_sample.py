@@ -33,6 +33,7 @@ NAME_SWAP = ""                         # Swap words in filenames, format: "word1
 FFMPEG_CMDS = {}                       # Custom FFMPEG commands
 UPLOAD_PATHS = {}                      # Custom upload paths for different filetypes
 CLEAN_LOG_MSG = False                  # Auto-delete log messages
+SHOW_CLOUD_LINKS = True                # Show cloud storage links in task completion messages
 
 # Telegram connection
 TG_PROXY = (

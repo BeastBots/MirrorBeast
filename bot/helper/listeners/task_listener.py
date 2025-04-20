@@ -335,6 +335,10 @@ class TaskListener(TaskConfig):
             and Config.DATABASE_URL
         ):
             await database.rm_complete_task(self.message.link)
+            
+        # Add save message prefix to use in callback data    
+        save_prefix = f"save_{self.mid}"
+            
         msg = (
             f"<b><i>{escape(self.name)}</i></b>\n│"
             f"\n┟ <b>Task Size</b> → {get_readable_file_size(self.size)}"
@@ -343,6 +347,12 @@ class TaskListener(TaskConfig):
             f"\n┠ <b>Out Mode</b> → {self.mode[1]}"
         )
         LOGGER.info(f"Task Done: {self.name}")
+        
+        # Create button for saving to saved messages
+        save_button = ButtonMaker()
+        save_button.callback_button("📥 Save", save_prefix)
+        save_markup = save_button.build_menu(1)
+        
         if self.is_leech:
             msg += f"\n┠ <b>Total Files</b> → {folders}"
             if mime_type != 0:
@@ -354,10 +364,10 @@ class TaskListener(TaskConfig):
                 pmsg += "〶 <b><u>Action Performed :</u></b>\n"
                 pmsg += "⋗ <i>File(s) have been sent to User PM</i>\n\n"
                 if self.is_super_chat:
-                    await send_message(self.message, pmsg)
+                    await send_message(self.message, pmsg, save_markup)
 
             if not files and not self.is_super_chat:
-                await send_message(self.message, msg)
+                await send_message(self.message, msg, save_markup)
             else:
                 log_chat = self.user_id if self.bot_pm else self.message
                 msg += "〶 <b><u>Files List :</u></b>\n"
@@ -374,33 +384,32 @@ class TaskListener(TaskConfig):
                         fmsg += f"\n┖ <b>Get Media</b> → <a href='{flink}'>Store Link</a> | <a href='https://t.me/share/url?url={flink}'>Share Link</a>"
                     fmsg += "\n"
                     if len(fmsg.encode() + msg.encode()) > 4000:
-                        await send_message(log_chat, msg + fmsg)
+                        await send_message(log_chat, msg + fmsg, save_markup)
                         await sleep(1)
                         fmsg = ""
                 if fmsg != "":
-                    await send_message(log_chat, msg + fmsg)
+                    await send_message(log_chat, msg + fmsg, save_markup)
         else:
             msg += f"\n│\n┟ <b>Type</b> → {mime_type}"
             if mime_type == "Folder":
                 msg += f"\n┠ <b>SubFolders</b> → {folders}"
                 msg += f"\n┠ <b>Files</b> → {files}"
             if (
-                link
-                or rclone_path
-                and Config.RCLONE_SERVE_URL
+                (link or rclone_path and Config.RCLONE_SERVE_URL)
                 and not self.private_link
             ):
                 buttons = ButtonMaker()
-                if link:
+                if link and Config.SHOW_CLOUD_LINKS:
                     buttons.url_button("☁️ Cloud Link", link)
-                else:
-                    msg += f"\n\nPath: <code>{rclone_path}</code>"
+                elif link:
+                    msg += f"\n┃\n┠ Path: <code>{rclone_path}</code>"
                 if rclone_path and Config.RCLONE_SERVE_URL and not self.private_link:
                     remote, rpath = rclone_path.split(":", 1)
                     url_path = rutils.quote(f"{rpath}")
-                    share_url = f"{Config.RCLONE_SERVE_URL}/{remote}/{url_path}"
-                    if mime_type == "Folder":
-                        share_url += "/"
+                    share_url = f"{Config.RCLONE_SERVE_URL}/{url_path}"
+                      # Redirect to index page instead of direct download
+                    if mime_type == "Folder" or not share_url.endswith("/"):
+                        share_url = share_url.rstrip("/")
                     buttons.url_button("🔗 Rclone Link", share_url)
                 if not rclone_path and dir_id:
                     INDEX_URL = ""
@@ -414,10 +423,13 @@ class TaskListener(TaskConfig):
                         if mime_type.startswith(("image", "video", "audio")):
                             share_urls = f"{INDEX_URL}findpath?id={dir_id}&view=true"
                             buttons.url_button("🌐 View Link", share_urls)
-                button = buttons.build_menu(2)
+                
+                # Add save button to existing buttons
+                buttons.callback_button("📥 Save", save_prefix)
+                button = buttons.build_menu(2) if buttons.data else save_markup
             else:
                 msg += f"\n┃\n┠ Path: <code>{rclone_path}</code>"
-                button = None
+                button = save_markup
             msg += f"\n┃\n┖ <b>Task By</b> → {self.tag}"
             await send_message(self.message, msg, button)
         if self.seed:
