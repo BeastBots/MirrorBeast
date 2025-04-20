@@ -1,3 +1,6 @@
+# MirrorBeast - Advanced Telegram Mirror-Leech Bot
+# https://github.com/BeastBots/MirrorBeast
+# 
 # REQUIRED CONFIG
 BOT_TOKEN = ""
 OWNER_ID = 0
@@ -9,7 +12,7 @@ DATABASE_URL = ""
 DEFAULT_LANG = "en"
 TG_PROXY = (
     {}
-)  # {"scheme": ”socks5”, "hostname": ””, "port": 1234, "username": ”user”, "password": ”pass”}
+)  # {"scheme": "socks5", "hostname": "", "port": 1234, "username": "user", "password": "pass"}
 USER_SESSION_STRING = ""
 CMD_SUFFIX = ""
 AUTHORIZED_CHATS = ""

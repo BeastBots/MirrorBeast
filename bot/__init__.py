@@ -103,3 +103,6 @@ sabnzbd_client = SabnzbdClient(
 srun([BinConfig.QBIT_NAME, "-d", f"--profile={getcwd()}"], check=False)
 
 scheduler = AsyncIOScheduler(event_loop=bot_loop)
+
+# Bot version information
+__version__ = "1.0.0"

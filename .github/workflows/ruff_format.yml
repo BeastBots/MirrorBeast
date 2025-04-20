@@ -1,45 +1,47 @@
-name: Format Code via Ruff
+name: MirrorBeast Format Check
 
 on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to format'
-        required: true
-        default: 'wzv3'
-        type: string
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
-  code-format:
+  format:
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout Repo
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.inputs.branch }}
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
-    - name: Set up Python3
-      uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
 
-    - name: Install ruff Linter
-      run: pip install ruff
+      - name: Install Ruff
+        run: pip install ruff
 
-    - name: Run ruff to format code
-      run: |
-        ruff check . --exit-zero
-        ruff format .
-        git add -u
+      - name: Format code with Ruff
+        run: ruff format .
+        
+      - name: Check if there are changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
 
-    - name: Commit and Push Changes
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        if git diff-index --quiet HEAD --; then
-          echo "No changes to commit."
-        else
-          git commit -m "style: Auto Ruff Formatter"
-          git push origin ${{ github.ref }}
-        fi
+      - name: Commit changes
+        if: steps.changes.outputs.changed == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'style: format code with ruff'
+          commit_user_name: 'GitHub Actions'
+          commit_user_email: 'actions@github.com'
