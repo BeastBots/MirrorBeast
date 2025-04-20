@@ -10,6 +10,7 @@ from sabnzbdapi.exception import APIResponseError
 
 from .. import (
     LOGGER,
+    DOWNLOAD_DIR,
     aria2_options,
     auth_chats,
     drives_ids,
@@ -160,6 +161,14 @@ async def load_settings():
             LOGGER.info("Users Data has been imported from MongoDB")
 
         # RSS feature has been removed from MirrorBeast
+
+
+async def save_file(file_path, content):
+    dir_path = ospath.dirname(file_path)
+    if not await aiopath.exists(dir_path):
+        await makedirs(dir_path)
+    async with aiopen(file_path, "wb+") as f:
+        await f.write(content)
 
 
 async def save_settings():
