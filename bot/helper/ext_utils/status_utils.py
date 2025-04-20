@@ -377,9 +377,9 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
     free_percent = round(100 - disk_usage(DOWNLOAD_DIR).percent, 1)
     uptime = get_readable_time(time() - bot_start_time)
     
-    msg += f"\n╭ <b>CPU:</b> {cpu_percent()}%"
-    msg += f"\n├ <b>RAM:</b> {virtual_memory().percent}%"
-    msg += f"\n├ <b>Storage:</b> {free_space} [{free_percent}% free]"
-    msg += f"\n╰ <b>Uptime:</b> {uptime}"
+    msg += f"\n╭ <b>CPU</b> → {cpu_percent()}%"
+    msg += f"\n├ <b>RAM</b> → {virtual_memory().percent}%"
+    msg += f"\n├ <b>Free</b> → {free_space}"
+    msg += f"\n╰ <b>UP</b> → {uptime}"
     
     return msg, button

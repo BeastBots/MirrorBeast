@@ -205,7 +205,7 @@ async def get_buttons(key=None, edit_type=None, edit_mode=False):
             buttons.data_button("Add/Delete File", "botset private edit")
         buttons.data_button("Back", "botset back", position="footer")
         buttons.data_button("Close", "botset close", position="footer")
-        txt = "\n┠ ".join(
+        txt = "\n├ ".join(
             [
                 f"<code>{fn}</code> → <b>{'Exists' if await aiopath.isfile(fn) else 'Not Exists'}</b>"
                 for fn in [
@@ -221,13 +221,13 @@ async def get_buttons(key=None, edit_type=None, edit_mode=False):
             ]
         )
         msg = f"""⌬ <b>Private File Settings</b>
-┠ <b>Dashboard :</b> 
+├ <b>Dashboard :</b> 
 ┃
-┠ {txt}
+├ {txt}
 ┃
-┠ <b>Delete File</b> → Send the file name as text message, Like <code>rclone.conf</code>.
+├ <b>Delete File</b> → Send the file name as text message, Like <code>rclone.conf</code>.
 ┃
-┖ <b>Note:</b> Changing .netrc will not take effect for aria2c until restart."""
+╰ <b>Note:</b> Changing .netrc will not take effect for aria2c until restart."""
         if edit_mode:
             msg += "\n\n<i>Send the file name to delete the file, file to save the file & for new file create, follow below format.</i> \n\n<b>Format:</b> \nfile_name\n\ncontents of file</i>\n\n<b>Time Left :</b> <code>60 sec</code>"
     elif key == "aria":

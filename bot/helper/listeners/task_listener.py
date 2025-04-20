@@ -357,7 +357,7 @@ class TaskListener(TaskConfig):
             msg += f"\n┠ <b>Total Files</b> → {folders}"
             if mime_type != 0:
                 msg += f"\n┠ <b>Corrupted Files</b> → {mime_type}"
-            msg += f"\n┖ <b>Task By</b> → {self.tag}\n\n"
+            msg += f"\n╰ <b>Task By</b> → {self.tag}\n\n"
 
             if self.bot_pm:
                 pmsg = msg
@@ -381,7 +381,7 @@ class TaskListener(TaskConfig):
                         if chat_id.isdigit():
                             chat_id = f"-100{chat_id}"
                         flink = f"https://t.me/{TgClient.BNAME}?start={encode_slink('file' + chat_id + '&&' + msg_id)}"
-                        fmsg += f"\n┖ <b>Get Media</b> → <a href='{flink}'>Store Link</a> | <a href='https://t.me/share/url?url={flink}'>Share Link</a>"
+                        fmsg += f"\n╰ <b>Get Media</b> → <a href='{flink}'>Store Link</a> | <a href='https://t.me/share/url?url={flink}'>Share Link</a>"
                     fmsg += "\n"
                     if len(fmsg.encode() + msg.encode()) > 4000:
                         await send_message(log_chat, msg + fmsg, save_markup)
@@ -430,7 +430,7 @@ class TaskListener(TaskConfig):
             else:
                 msg += f"\n┃\n┠ Path: <code>{rclone_path}</code>"
                 button = save_markup
-            msg += f"\n┃\n┖ <b>Task By</b> → {self.tag}"
+            msg += f"\n┃\n╰ <b>Task By</b> → {self.tag}\n\n"
             await send_message(self.message, msg, button)
         if self.seed:
             await clean_target(self.up_dir)

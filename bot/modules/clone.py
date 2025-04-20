@@ -162,12 +162,13 @@ class Clone(TaskListener):
                 await send_message(self.message, msg, button)
                 return
             if limit_exceeded := await limit_checker(self):
-                await send_message(self.message, f"""〶 <b><i><u>Limit Breached:</u></i></b>
+                await send_message(self.message, f"""╭ <b><i><u>Limit Breached:</u></i></b>
 │
-┟ <b>Task Size</b> → {get_readable_file_size(self.size)}
-┠ <b>In Mode</b> → {self.mode[0]}
-┠ <b>Out Mode</b> → {self.mode[1]}
-{limit_exceeded}""")
+├ <b>Task Size</b> → {get_readable_file_size(self.size)}
+├ <b>In Mode</b> → {self.mode[0]}
+├ <b>Out Mode</b> → {self.mode[1]}
+╰ <b>Limit</b> → {limit_exceeded}
+""")
                 return
             await self.on_download_start()
             LOGGER.info(f"Clone Started: Name: {self.name} - Source: {self.link}")
