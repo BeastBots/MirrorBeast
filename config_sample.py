@@ -27,6 +27,8 @@ BOT_PM = False                         # Enable/disable private messaging with b
 TIMEZONE = "Asia/Kolkata"              # Timezone for displaying times correctly
 
 # Bot appearance and behavior
+CUSTOM_BOT_HEADER = "Mirror Beast"     # Custom header for status page
+CUSTOM_BOT_HEADER_LINK = "https://t.me/MirrorBeast"  # Link for the header
 EXCLUDED_EXTENSIONS = ""               # File extensions to exclude, comma-separated (e.g., "exe,zip")
 INCOMPLETE_TASK_NOTIFIER = False       # Notify about incomplete tasks
 NAME_SWAP = ""                         # Swap words in filenames, format: "word1:word2,word3:word4"

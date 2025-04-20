@@ -166,24 +166,44 @@ async def ping(_, message):
     reply = await send_message(message, "<i>Starting Ping..</i>")
     end_time = monotonic()
     
-    # Easter egg: Multiple fun responses for ping command
+    # Easter egg: Multiple fun responses for ping command with visual elements
     ping_responses = [
-        "<i>Pong! I'm still alive!</i>",
-        "<i>Are we playing ping pong now?</i>",
-        "<i>Get a life! Still checking if I'm online?</i>",
-        "<i>I'm faster than your reflexes!</i>",
-        "<i>Still here, unfortunately...</i>",
-        "<i>*yawns* Yes, I'm awake...</i>",
-        "<i>Achievement unlocked: Pinged a bot!</i>",
-        "<i>Ping received, sending virtual high-five!</i>",
-        "<i>Roses are red, violets are blue, your ping is done, I'm alive too!</i>",
+        "🏓 <i>Pong! Bot is alive and well!</i>",
+        "⚡ <i>Lightning fast response, as usual!</i>",
+        "🧠 <i>Still thinking... just kidding!</i>",
+        "🔄 <i>All systems operational, captain!</i>",
+        "🎯 <i>Bullseye! Target response acquired!</i>",
+        "👻 <i>BOO! Did I scare you?</i>",
+        "🤖 <i>Beep boop! Robot functioning normally.</i>",
+        "🐢 <i>I'm not slow, just thoughtful...</i>",
+        "🚀 <i>Faster than a speeding download!</i>",
+        "💤 <i>*yawns* Yes, I'm awake...</i>",
+        "🏆 <i>Achievement unlocked: Pinged a bot!</i>",
+        "🌟 <i>Shining bright and responding right!</i>",
+        "🎮 <i>Player 1: Ping | Player 2: Pong</i>",
+        "💫 <i>Still here, still fabulous!</i>",
+        "🧩 <i>All pieces connected successfully!</i>",
     ]
     
-    response = choice(ping_responses)
+    # Get ping time in ms
     ping_time = int((end_time - start_time) * 1000)
     
+    # Add visual indicators based on ping speed
+    if ping_time < 100:
+        speed_indicator = "🟢 Blazing Fast"
+    elif ping_time < 300:
+        speed_indicator = "🟡 Pretty Good"
+    else:
+        speed_indicator = "🔴 Could Be Better"
+    
+    # Create a visual ping bar
+    bar_length = min(10, max(1, int(1000 / max(ping_time, 1))))
+    ping_bar = "█" * bar_length + "▒" * (10 - bar_length)
+    
+    response = choice(ping_responses)
+    
     await edit_message(
-        reply, f"{response}\n<code>{ping_time} ms</code>"
+        reply, f"{response}\n\n<code>Ping: {ping_time} ms | {speed_indicator}</code>\n<code>[{ping_bar}]</code>"
     )
 
 

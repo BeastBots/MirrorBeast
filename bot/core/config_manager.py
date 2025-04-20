@@ -12,6 +12,8 @@ class Config:
     BOT_MAX_TASKS = 0
     BOT_PM = False
     CMD_SUFFIX = ""
+    CUSTOM_BOT_HEADER = "Mirror Beast"
+    CUSTOM_BOT_HEADER_LINK = "https://t.me/MirrorBeast"
     DEFAULT_LANG = "en"
     DATABASE_URL = ""
     DEFAULT_UPLOAD = "rc"
