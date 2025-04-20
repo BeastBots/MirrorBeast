@@ -21,7 +21,6 @@ from .. import (
     excluded_extensions,
     nzb_options,
     qbit_options,
-    rss_dict,
     sabnzbd_client,
     sudo_users,
 )
