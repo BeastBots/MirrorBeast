@@ -40,7 +40,6 @@ class BotCommands:
         "Exec": "exec",
         "ClearLocals": "clearlocals",
         "IMDB": "imdb",
-        "Rss": "rss",
         "Authorize": ["authorize", "a"],
         "UnAuthorize": ["unauthorize", "ua"],
         "AddSudo": ["addsudo", "as"],

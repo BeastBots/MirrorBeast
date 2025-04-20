@@ -152,33 +152,15 @@ async def load_settings():
             async for row in rows:
                 uid = row["_id"]
                 del row["_id"]
-                paths = {
-                    "THUMBNAIL": f"thumbnails/{uid}.jpg",
-                    "RCLONE_CONFIG": f"rclone/{uid}.conf",
-                    "TOKEN_PICKLE": f"tokens/{uid}.pickle",
-                }
-
-                async def save_file(file_path, content):
-                    dir_path = ospath.dirname(file_path)
-                    if not await aiopath.exists(dir_path):
-                        await makedirs(dir_path)
-                    async with aiopen(file_path, "wb+") as f:
-                        await f.write(content)
-
-                for key, path in paths.items():
-                    if row.get(key):
-                        await save_file(path, row[key])
-                        row[key] = path
+                path = f"{DOWNLOAD_DIR}thumb/{uid}.jpg"
+                if row.get("thumb"):
+                    if not await aiopath.exists(path):
+                        await save_file(path, row["thumb"])
+                        row["thumb"] = path
                 user_data[uid] = row
             LOGGER.info("Users Data has been imported from MongoDB")
 
-        if await database.db.rss[BOT_ID].find_one():
-            rows = database.db.rss[BOT_ID].find({})
-            async for row in rows:
-                user_id = row["_id"]
-                del row["_id"]
-                rss_dict[user_id] = row
-            LOGGER.info("RSS data has been imported from MongoDB")
+        # RSS feature has been removed from MirrorBeast
 
 
 async def save_settings():

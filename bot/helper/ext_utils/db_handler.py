@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import PyMongoError
 from pymongo.server_api import ServerApi
 
-from ... import LOGGER, qbit_options, rss_dict, user_data
+from ... import LOGGER, qbit_options, user_data
 from ...core.config_manager import Config
 from ...core.tg_client import TgClient
 
@@ -158,26 +158,6 @@ class DbManager:
             await self.db.users[TgClient.ID].update_one(
                 {"_id": user_id}, {"$unset": {key: ""}}, upsert=True
             )
-
-    async def rss_update_all(self):
-        if self._return:
-            return
-        for user_id in list(rss_dict.keys()):
-            await self.db.rss[TgClient.ID].replace_one(
-                {"_id": user_id}, rss_dict[user_id], upsert=True
-            )
-
-    async def rss_update(self, user_id):
-        if self._return:
-            return
-        await self.db.rss[TgClient.ID].replace_one(
-            {"_id": user_id}, rss_dict[user_id], upsert=True
-        )
-
-    async def rss_delete(self, user_id):
-        if self._return:
-            return
-        await self.db.rss[TgClient.ID].delete_one({"_id": user_id})
 
     async def add_incomplete_task(self, cid, link, tag):
         if self._return:

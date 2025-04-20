@@ -53,7 +53,6 @@ from ..helper.telegram_helper.message_utils import (
     send_message,
     update_status_message,
 )
-from .rss import add_job
 from .search import initiate_search_tools
 
 start = 0
@@ -61,7 +60,6 @@ state = "view"
 handler_dict = {}
 DEFAULT_VALUES = {
     "LEECH_SPLIT_SIZE": TgClient.MAX_SPLIT_SIZE,
-    "RSS_DELAY": 600,
     "STATUS_UPDATE_INTERVAL": 15,
     "SEARCH_LIMIT": 0,
     "UPSTREAM_BRANCH": "master",
@@ -936,4 +934,3 @@ async def load_config():
     else:
         await database.disconnect()
     await gather(initiate_search_tools(), start_from_queued(), rclone_serve_booter())
-    add_job()

@@ -65,7 +65,6 @@ queued_dl = {}
 queued_up = {}
 status_dict = {}
 task_dict = {}
-rss_dict = {}
 shortener_dict = {}
 var_list = [
     "BOT_TOKEN",
