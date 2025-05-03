@@ -313,6 +313,21 @@ async def edit_variable(_, message, pre_message, key):
             index_urls[0] = value
         else:
             index_urls.insert(0, value)
+    elif key == "MIRROR_LOG_ID":
+         # Handle the MIRROR_LOG_ID configuration
+         if value.strip():
+             try:
+                 # Validate if it's a proper chat/channel ID
+                 value = int(value.strip())
+             except ValueError:
+                 await send_message(message, "Invalid value! MIRROR_LOG_ID must be a valid integer chat ID.")
+                 return await update_buttons(pre_message, "var")
+    elif key == "FINISHED_PROGRESS_STR":
+         value = value.split("||")
+         if len(value) == 2:
+             value = {"msg": value[0], "button": value[1]}
+         else:
+             value = {"msg": value[0], "button": ""}
     elif key == "AUTHORIZED_CHATS":
         aid = value.split()
         auth_chats.clear()

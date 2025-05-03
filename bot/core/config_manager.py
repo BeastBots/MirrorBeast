@@ -23,6 +23,7 @@ class Config:
     FFMPEG_CMDS = {}
     FILELION_API = ""
     MEDIA_STORE = True
+    MIRROR_LOG_ID = ""
     FORCE_SUB_IDS = ""
     GDRIVE_ID = ""
     GD_DESP = "Uploaded by Beast"
