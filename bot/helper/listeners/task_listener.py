@@ -58,7 +58,7 @@ from ..telegram_helper.message_utils import (
 class TaskListener(TaskConfig):
     def __init__(self):
         super().__init__()
-
+        
     async def clean(self):
         with suppress(Exception):
             if st := intervals["status"]:
@@ -66,14 +66,14 @@ class TaskListener(TaskConfig):
                     intvl.cancel()
             intervals["status"].clear()
             await gather(TorrentManager.aria2.purgeDownloadResult(), delete_status())
-
+            
     def clear(self):
         self.subname = ""
         self.subsize = 0
         self.files_to_proceed = []
         self.proceed_count = 0
         self.progress = True
-
+        
     async def remove_from_same_dir(self):
         async with task_dict_lock:
             if (
@@ -85,14 +85,33 @@ class TaskListener(TaskConfig):
                 self.same_dir[self.folder_name]["total"] -= 1
 
     async def on_download_start(self):
+        # Create enhanced task start message
+        mode_name = "Leech" if self.is_leech else "Mirror"
+        start_msg = f"""➲ <b><u>{mode_name} Started :</u></b>
+┃
+┠ <b>User :</b> {self.tag} ( #{self.user_id} )
+┠ <b>Message Link :</b> <a href='{self.message.link}'>Click Here</a>
+┖ <b>Source :</b> <a href='{self.source_url}'>Click Here</a>
+"""
+        # Send to user's PM if enabled
         if self.bot_pm and self.is_super_chat:
             self.pm_msg = await send_message(
                 self.user_id,
-                f"""➲ <b><u>Task Started :</u></b>
-┃
-┖ <b>Link:</b> <a href='{self.source_url}'>Click Here</a>
-""",
+                start_msg,
             )
+            
+        # Send to LINKS_LOG_ID channel/chat if configured
+        if Config.LINKS_LOG_ID:
+            try:
+                links_log_id = int(Config.LINKS_LOG_ID)
+                await send_message(
+                    links_log_id,
+                    start_msg,
+                )
+                LOGGER.info(f"Task start message sent to LINKS_LOG_ID: {links_log_id}")
+            except Exception as e:
+                LOGGER.error(f"Failed to send message to LINKS_LOG_ID: {str(e)}")
+                
         if (
             self.is_super_chat
             and Config.INCOMPLETE_TASK_NOTIFIER

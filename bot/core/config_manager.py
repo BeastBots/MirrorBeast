@@ -24,6 +24,7 @@ class Config:
     FILELION_API = ""
     MEDIA_STORE = True
     MIRROR_LOG_ID = ""
+    LINKS_LOG_ID = ""
     FORCE_SUB_IDS = ""
     GDRIVE_ID = ""
     GD_DESP = "Uploaded by Beast"
