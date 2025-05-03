@@ -79,6 +79,7 @@ async def get_buttons(key=None, edit_type=None, edit_mode=False):
         buttons.data_button("Sabnzbd Settings", "botset nzb")
         buttons.data_button("JDownloader Sync", "botset syncjd")
         buttons.data_button("Close", "botset close")
+        buttons.data_button("Find Setting", "botset findsetting")
         msg = "Bot Settings:"
     elif edit_type is not None:
         if edit_type == "botvar":
@@ -965,3 +966,47 @@ async def load_config():
         await database.disconnect()
     await gather(initiate_search_tools(), start_from_queued(), rclone_serve_booter())
     add_job()
+
+
+@new_task
+async def find_setting(_, message):
+    query = message.text.strip()
+    if not query:
+        await send_message(message, "Please provide a setting name to search.")
+        return
+
+    conf_dict = Config.get_all()
+    results = [f"<b>{key}</b>: {value}" for key, value in conf_dict.items() if query.lower() in key.lower()]
+
+    if results:
+        response = "\n".join(results)
+    else:
+        response = "No matching settings found."
+
+    await send_message(message, response)
+
+
+@new_task
+async def process_find_query(_, message):
+    query = message.text.strip()
+    if not query:
+        await send_message(message, "Please provide a valid setting name or keyword.")
+        return
+
+    conf_dict = Config.get_all()
+    exact_match = conf_dict.get(query)
+    if exact_match is not None:
+        await send_message(message, f"Redirecting to setting: <b>{query}</b>")
+        await update_buttons(message, "var", edit_type="botvar", key=query)
+        return
+
+    related_matches = [key for key in conf_dict if query.lower() in key.lower()]
+    if related_matches:
+        buttons = ButtonMaker()
+        for key in related_matches:
+            buttons.data_button(key, f"botset botvar {key}")
+        buttons.data_button("Back", "botset var")
+        buttons.data_button("Close", "botset close")
+        await send_message(message, "Related settings:", buttons.build_menu(2))
+    else:
+        await send_message(message, "No matching settings found for the provided keyword.")
