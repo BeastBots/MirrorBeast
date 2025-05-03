@@ -100,9 +100,8 @@ IS_TEAM_DRIVE = False
 STOP_DUPLICATE = False
 INDEX_URL = ""
 
-# Delivery Log Options
-MIRROR_LOG_ID = ""
-LINKS_LOG_ID = ""
+# Show Cloud Links
+SHOW_CLOUD_LINK = False
 
 # Rclone
 RCLONE_PATH = ""
@@ -111,7 +110,14 @@ RCLONE_SERVE_URL = ""
 RCLONE_SERVE_PORT = 0
 RCLONE_SERVE_USER = ""
 RCLONE_SERVE_PASS = ""
-SHOW_CLOUD_LINK = False
+
+# Delivery Log Options
+MIRROR_LOG_ID = ""
+LINKS_LOG_ID = ""
+
+# Telegraph
+TELEGRAPH_AUTHOR_NAME = ""
+TELEGRAPH_AUTHOR_URL = ""
 
 # JDownloader
 JD_EMAIL = ""

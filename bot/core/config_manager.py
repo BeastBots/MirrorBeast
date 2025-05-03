@@ -89,6 +89,8 @@ class Config:
     SUDO_USERS = ""
     TELEGRAM_API = 0
     TELEGRAM_HASH = ""
+    TELEGRAPH_AUTHOR_NAME = "Beast"
+    TELEGRAPH_AUTHOR_URL = "https://t.me/MirrorBeast"
     TG_PROXY = None
     THUMBNAIL_LAYOUT = ""
     VERIFY_TIMEOUT = 0

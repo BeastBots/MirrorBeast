@@ -4,6 +4,7 @@ from telegraph.aio import Telegraph
 from telegraph.exceptions import RetryAfterError
 
 from ... import LOGGER
+from ...core.config_manager import Config
 
 
 class TelegraphHelper:
@@ -79,6 +80,6 @@ class TelegraphHelper:
         return
 
 
-telegraph = TelegraphHelper("WZML-X", "https://github.com/SilentDemonSD/WZML-X")
+telegraph = TelegraphHelper(Config.TELEGRAPH_AUTHOR_NAME, Config.TELEGRAPH_AUTHOR_URL)
 
 print(__name__)
