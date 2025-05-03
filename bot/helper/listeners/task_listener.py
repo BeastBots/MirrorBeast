@@ -358,6 +358,15 @@ class TaskListener(TaskConfig):
         # Add save message prefix to use in callback data
         save_prefix = f"save_{self.mid}"
         
+        # Helper function to get user mention
+        def get_user_mention(user):
+            if user.username:
+                return f"@{user.username}"
+            elif hasattr(user, 'mention'):
+                return user.mention
+            else:
+                return f"User {user.id}"
+        
         msg = (
             f"<b><i>{escape(self.name)}</i></b>\n│"
             f"\n┟ <b>Task Size</b> → {get_readable_file_size(self.size)}"
@@ -401,49 +410,17 @@ class TaskListener(TaskConfig):
                 group_msg += f"\n┠ <b>Status</b> → Completed and sent to your PM"
                 group_msg += f"\n┖ <b>Task By</b> → {self.tag}"
                 
-                # Send full message with links to PM - Using direct API method
-                if fmsg:
-                    if len(fmsg.encode() + full_msg.encode()) <= 4000:
-                        await send_message(
-                            user_id, 
-                            full_msg + fmsg
-                        )
-                        LOGGER.info(f"Successfully sent complete message to user PM: {user_id}")
-                    else:
-                        # Split into multiple messages if too long
-                        await send_message(
-                            user_id, 
-                            full_msg
-                        )
-                        
-                        chunks = []
-                        current_chunk = ""
-                        for line in fmsg.splitlines(True):
-                            if len(current_chunk.encode() + line.encode()) > 4000:
-                                chunks.append(current_chunk)
-                                current_chunk = line
-                            else:
-                                current_chunk += line
-                        if current_chunk:
-                            chunks.append(current_chunk)
-                            
-                        for chunk in chunks:
-                            await sleep(1)  # Avoid rate limiting
-                            await send_message(
-                                user_id, 
-                                chunk
-                            )
-                        LOGGER.info(f"Successfully sent chunked messages to user PM: {user_id}")
-                else:
-                    # No files to list, just send the message
+                # Notify in chat with a reply to original message if the message exists
+                try:
+                    user_mention = get_user_mention(self.user)
+                    await self.message.reply(f"{user_mention} Your task has been completed and sent to your PM.")
+                except Exception as e:
+                    # If can't reply (message deleted), send as a new message
                     await send_message(
-                        user_id, 
-                        full_msg
+                        self.message, 
+                        f"<b><i>{escape(self.name)}</i></b>\n│\n┠ <b>Status</b> → Completed and sent to your PM\n┖ <b>Task By</b> → {self.tag}"
                     )
-                    LOGGER.info(f"Successfully sent message to user PM: {user_id}")
-                
-                # Send notification to group
-                await send_message(self.message, group_msg)
+                    LOGGER.error(f"Error sending reply notification: {str(e)}")
                 
                 # Send to MIRROR_LOG_ID chat/channel if configured
                 mirror_log_id = Config.MIRROR_LOG_ID
@@ -553,9 +530,30 @@ class TaskListener(TaskConfig):
                 buttons = ButtonMaker()
                 buttons.callback_button("📥 Save", save_prefix)
                 button = buttons.build_menu(1)
+                msg += f"\n┃\n┖ <b>Task By</b> → {self.tag}"
             
-            msg += f"\n┃\n┖ <b>Task By</b> → {self.tag}"
-            await send_message(self.message, msg, button)
+            # Check if BOT_PM is enabled
+            if self.bot_pm and self.is_super_chat:
+                try:
+                    # First try to send to PM
+                    await send_message(self.user_id, msg, button)
+                    
+                    # Notify in chat with a reply to original message
+                    try:
+                        user_mention = get_user_mention(self.user)
+                        await self.message.reply(f"{user_mention} Your task has been completed and sent to your PM.")
+                    except Exception as e:
+                        # If can't reply (message deleted), send notification as new message
+                        notification_msg = f"<b><i>{escape(self.name)}</i></b>\n│\n┠ <b>Status</b> → Completed and sent to your PM\n┖ <b>Task By</b> → {self.tag}"
+                        await send_message(self.message, notification_msg)
+                        LOGGER.error(f"Error sending reply notification: {str(e)}")
+                except Exception as e:
+                    # If sending to PM fails, send in chat as usual
+                    LOGGER.error(f"Failed to send message to PM: {str(e)}")
+                    await send_message(self.message, msg, button)
+            else:
+                # Default behavior - send in chat where command was issued
+                await send_message(self.message, msg, button)
             
             # Send to MIRROR_LOG_ID chat/channel if configured
             mirror_log_id = Config.MIRROR_LOG_ID
