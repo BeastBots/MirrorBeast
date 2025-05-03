@@ -100,6 +100,9 @@ IS_TEAM_DRIVE = False
 STOP_DUPLICATE = False
 INDEX_URL = ""
 
+# Delivery Log Options
+MIRROR_LOG_ID = ""
+
 # Rclone
 RCLONE_PATH = ""
 RCLONE_FLAGS = ""

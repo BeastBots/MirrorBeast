@@ -425,6 +425,38 @@ class TaskListener(TaskConfig):
                 
                 # Send notification to group
                 await send_message(self.message, group_msg)
+                
+                # Send to MIRROR_LOG_ID chat/channel if configured
+                mirror_log_id = Config.MIRROR_LOG_ID
+                if mirror_log_id:
+                    try:
+                        mirror_log_id = int(mirror_log_id)
+                        if files and self.is_super_chat:
+                            full_log_msg = msg + "\n〶 <b><u>Files List :</u></b>\n" + fmsg
+                            if len(full_log_msg.encode()) > 4000:
+                                # Split into chunks if message is too long
+                                log_chunks = []
+                                log_current_chunk = msg + "\n〶 <b><u>Files List :</u></b>\n"
+                                for line in fmsg.splitlines(True):
+                                    if len(log_current_chunk.encode() + line.encode()) > 4000:
+                                        log_chunks.append(log_current_chunk)
+                                        log_current_chunk = line
+                                    else:
+                                        log_current_chunk += line
+                                if log_current_chunk:
+                                    log_chunks.append(log_current_chunk)
+                                    
+                                for chunk in log_chunks:
+                                    await sleep(1)  # Avoid rate limiting
+                                    await send_message(mirror_log_id, chunk)
+                            else:
+                                await send_message(mirror_log_id, full_log_msg)
+                        else:
+                            # For simple messages without file lists
+                            await send_message(mirror_log_id, full_msg or msg)
+                        LOGGER.info(f"Successfully forwarded task completion message to MIRROR_LOG_ID: {mirror_log_id}")
+                    except Exception as e:
+                        LOGGER.error(f"Failed to send message to MIRROR_LOG_ID: {str(e)}")
             except Exception as e:
                 # If sending to PM fails, fall back to sending in group
                 LOGGER.error(f"Failed to send message to PM: {str(e)}")
@@ -505,6 +537,17 @@ class TaskListener(TaskConfig):
             
             msg += f"\n┃\n┖ <b>Task By</b> → {self.tag}"
             await send_message(self.message, msg, button)
+            
+            # Send to MIRROR_LOG_ID chat/channel if configured
+            mirror_log_id = Config.MIRROR_LOG_ID
+            if mirror_log_id:
+                try:
+                    mirror_log_id = int(mirror_log_id)
+                    await send_message(mirror_log_id, msg, button)
+                    LOGGER.info(f"Successfully forwarded non-leech task completion message to MIRROR_LOG_ID: {mirror_log_id}")
+                except Exception as e:
+                    LOGGER.error(f"Failed to send message to MIRROR_LOG_ID: {str(e)}")
+                    
         if self.seed:
             await clean_target(self.up_dir)
             async with queue_dict_lock:
