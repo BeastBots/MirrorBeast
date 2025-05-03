@@ -102,6 +102,7 @@ INDEX_URL = ""
 
 # Delivery Log Options
 MIRROR_LOG_ID = ""
+LINKS_LOG_ID = ""
 
 # Rclone
 RCLONE_PATH = ""
