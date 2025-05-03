@@ -417,68 +417,24 @@ class TaskListener(TaskConfig):
                         flink = f"https://t.me/{TgClient.BNAME}?start={encode_slink('file' + str(chat_id) + '&&' + str(msg_id))}"
                         fmsg += f"\n┖ <b>Get Media</b> → <a href='{flink}'>Store Link</a> | <a href='https://t.me/share/url?url={flink}'>Share Link</a>"
                     fmsg += "\n"
-                  # Send the actual files to user's PM if BOT_PM is enabled
+                
+                # Forward the actual files to user's PM if BOT_PM is enabled
                 if self.bot_pm and files_to_forward:
-                    LOGGER.info(f"Sending {len(files_to_forward)} files to user PM: {self.user_id}")
+                    LOGGER.info(f"Forwarding {len(files_to_forward)} files to user PM: {self.user_id}")
                     for chat_id, msg_id in files_to_forward:
                         try:
                             await sleep(2)  # Add delay to prevent flood
-                            # Get the message from original chat
-                            message = await TgClient.bot.get_messages(chat_id=chat_id, message_ids=msg_id)
-                            
-                            if message and hasattr(message, 'media') and message.media:
-                                # Determine the type of media and send accordingly
-                                if message.document:
-                                    await TgClient.bot.send_document(
-                                        chat_id=self.user_id,
-                                        document=message.document.file_id,
-                                        caption=message.caption if message.caption else None,
-                                        file_name=message.document.file_name if hasattr(message.document, 'file_name') else None
-                                    )
-                                elif message.video:
-                                    await TgClient.bot.send_video(
-                                        chat_id=self.user_id,
-                                        video=message.video.file_id,
-                                        caption=message.caption if message.caption else None,
-                                        duration=message.video.duration if hasattr(message.video, 'duration') else None,
-                                        width=message.video.width if hasattr(message.video, 'width') else None,
-                                        height=message.video.height if hasattr(message.video, 'height') else None
-                                    )
-                                elif message.audio:
-                                    await TgClient.bot.send_audio(
-                                        chat_id=self.user_id,
-                                        audio=message.audio.file_id,
-                                        caption=message.caption if message.caption else None,
-                                        duration=message.audio.duration if hasattr(message.audio, 'duration') else None,
-                                        title=message.audio.title if hasattr(message.audio, 'title') else None
-                                    )
-                                elif message.photo:
-                                    await TgClient.bot.send_photo(
-                                        chat_id=self.user_id,
-                                        photo=message.photo.file_id,
-                                        caption=message.caption if message.caption else None
-                                    )
-                                else:
-                                    # If we can't determine media type, try to copy the message
-                                    await TgClient.bot.copy_message(
-                                        chat_id=self.user_id,
-                                        from_chat_id=chat_id,
-                                        message_id=msg_id
-                                    )
-                                LOGGER.info(f"Successfully sent media (ID: {msg_id}) to user {self.user_id}")
-                            else:
-                                # Fallback to copying the message if we can't extract media
-                                await TgClient.bot.copy_message(
-                                    chat_id=self.user_id,
-                                    from_chat_id=chat_id,
-                                    message_id=msg_id
-                                )
-                                LOGGER.info(f"Successfully copied message (ID: {msg_id}) to user {self.user_id}")
+                            await TgClient.bot.forward_messages(
+                                chat_id=self.user_id,
+                                from_chat_id=chat_id,
+                                message_ids=msg_id
+                            )
+                            LOGGER.info(f"Successfully forwarded message (ID: {msg_id}) from chat {chat_id} to user {self.user_id}")
                         except Exception as e:
-                            LOGGER.error(f"Failed to send file to user PM: {str(e)}")
-                            # Continue with other files even if one fails
+                            LOGGER.error(f"Failed to forward file to user PM: {str(e)}")                            # Continue with other files even if one fails
                             continue
-                  # Send notification to group
+                
+                # Send notification to group
                 group_msg = f"<b><i>{escape(self.name)}</i></b>\n│"
                 group_msg += f"\n┠ <b>Task Size</b> → {get_readable_file_size(self.size)}"
                 group_msg += f"\n┠ <b>Status</b> → Completed and sent to your PM"
@@ -489,13 +445,13 @@ class TaskListener(TaskConfig):
                     user_mention = get_user_mention(self.user)
                     additional_info = ""
                     if self.bot_pm and files_to_forward:
-                        additional_info = " Files have also been sent to your PM."
+                        additional_info = " Files have also been forwarded to your PM."
                     await self.message.reply(f"{user_mention} Your task has been completed and sent to your PM.{additional_info}")
                 except Exception as e:
                     # If can't reply (message deleted), send as a new message
                     notification_msg = f"<b><i>{escape(self.name)}</i></b>\n│\n┠ <b>Status</b> → Completed and sent to your PM"
                     if self.bot_pm and files_to_forward:
-                        notification_msg += "\n┠ <b>Note</b> → Files have also been sent to your PM"
+                        notification_msg += "\n┠ <b>Note</b> → Files have also been forwarded to your PM"
                     notification_msg += f"\n┖ <b>Task By</b> → {self.tag}"
                     await send_message(self.message, notification_msg)
                     LOGGER.error(f"Error sending reply notification: {str(e)}")
