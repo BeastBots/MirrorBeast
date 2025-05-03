@@ -391,19 +391,49 @@ class TaskListener(TaskConfig):
                 full_msg = msg
                 full_msg += "〶 <b><u>Files List :</u></b>\n"
                 fmsg = ""
+                # Prepare for forwarding files to user's PM if BOT_PM is enabled
+                files_to_forward = []
+                
                 for index, (link, name) in enumerate(files.items(), start=1):
                     chat_id, msg_id = link.split("/")[-2:]
+                    # Store message info for forwarding
+                    if self.bot_pm:
+                        if chat_id.isdigit():
+                            chat_id = int(chat_id) 
+                            if not str(chat_id).startswith('-100'):
+                                chat_id = int(f"-100{chat_id}")
+                        else:
+                            chat_id = int(chat_id)
+                        msg_id = int(msg_id)
+                        files_to_forward.append((chat_id, msg_id))
+                        
                     # Add direct link to the file in PM message
                     fmsg += f"{index}. <a href='{link}'>{name}</a>"
                     if Config.MEDIA_STORE and (
                         self.is_super_chat or Config.LEECH_DUMP_CHAT
                     ):
-                        if chat_id.isdigit():
+                        if isinstance(chat_id, int) and not str(chat_id).startswith('-100'):
                             chat_id = f"-100{chat_id}"
-                        flink = f"https://t.me/{TgClient.BNAME}?start={encode_slink('file' + chat_id + '&&' + msg_id)}"
+                        flink = f"https://t.me/{TgClient.BNAME}?start={encode_slink('file' + str(chat_id) + '&&' + str(msg_id))}"
                         fmsg += f"\n┖ <b>Get Media</b> → <a href='{flink}'>Store Link</a> | <a href='https://t.me/share/url?url={flink}'>Share Link</a>"
                     fmsg += "\n"
-                    
+                
+                # Forward the actual files to user's PM if BOT_PM is enabled
+                if self.bot_pm and files_to_forward:
+                    LOGGER.info(f"Forwarding {len(files_to_forward)} files to user PM: {self.user_id}")
+                    for chat_id, msg_id in files_to_forward:
+                        try:
+                            await sleep(2)  # Add delay to prevent flood
+                            await TgClient.bot.forward_messages(
+                                chat_id=self.user_id,
+                                from_chat_id=chat_id,
+                                message_ids=msg_id
+                            )
+                            LOGGER.info(f"Successfully forwarded message (ID: {msg_id}) from chat {chat_id} to user {self.user_id}")
+                        except Exception as e:
+                            LOGGER.error(f"Failed to forward file to user PM: {str(e)}")                            # Continue with other files even if one fails
+                            continue
+                
                 # Send notification to group
                 group_msg = f"<b><i>{escape(self.name)}</i></b>\n│"
                 group_msg += f"\n┠ <b>Task Size</b> → {get_readable_file_size(self.size)}"
@@ -413,13 +443,17 @@ class TaskListener(TaskConfig):
                 # Notify in chat with a reply to original message if the message exists
                 try:
                     user_mention = get_user_mention(self.user)
-                    await self.message.reply(f"{user_mention} Your task has been completed and sent to your PM.")
+                    additional_info = ""
+                    if self.bot_pm and files_to_forward:
+                        additional_info = " Files have also been forwarded to your PM."
+                    await self.message.reply(f"{user_mention} Your task has been completed and sent to your PM.{additional_info}")
                 except Exception as e:
                     # If can't reply (message deleted), send as a new message
-                    await send_message(
-                        self.message, 
-                        f"<b><i>{escape(self.name)}</i></b>\n│\n┠ <b>Status</b> → Completed and sent to your PM\n┖ <b>Task By</b> → {self.tag}"
-                    )
+                    notification_msg = f"<b><i>{escape(self.name)}</i></b>\n│\n┠ <b>Status</b> → Completed and sent to your PM"
+                    if self.bot_pm and files_to_forward:
+                        notification_msg += "\n┠ <b>Note</b> → Files have also been forwarded to your PM"
+                    notification_msg += f"\n┖ <b>Task By</b> → {self.tag}"
+                    await send_message(self.message, notification_msg)
                     LOGGER.error(f"Error sending reply notification: {str(e)}")
                 
                 # Send to MIRROR_LOG_ID chat/channel if configured
