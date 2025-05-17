@@ -58,6 +58,7 @@ from .telegram_helper.message_utils import (
     get_tg_link_message,
     send_message,
     send_status_message,
+    temp_download,
 )
 
 
@@ -672,6 +673,7 @@ class TaskConfig:
 
     async def proceed_ffmpeg(self, dl_path, gid):
         checked = False
+        inputs = {}
         cmds = [
             [part.strip() for part in split(item) if part.strip()]
             for item in self.ffmpeg_cmds
@@ -693,8 +695,13 @@ class TaskConfig:
                     delete_files = True
                 else:
                     delete_files = False
-                index = cmd.index("-i")
-                input_file = cmd[index + 1]
+                input_indexes = [
+                    index for index, value in enumerate(cmd) if value == "-i"
+                ]
+                for index in input_indexes:
+                    if cmd[index + 1].startswith("mltb"):
+                        input_file = cmd[index + 1]
+                        break
                 if input_file.strip().endswith(".video"):
                     ext = "video"
                 elif input_file.strip().endswith(".audio"):
@@ -732,7 +739,14 @@ class TaskConfig:
                         await cpu_eater_lock.acquire()
                         self.progress = True
                     LOGGER.info(f"Running ffmpeg cmd for: {file_path}")
-                    cmd[index + 1] = file_path
+                    for index in input_indexes:
+                        if cmd[index + 1].startswith("mltb"):
+                            cmd[index + 1] = file_path
+                        elif is_telegram_link(cmd[index + 1]):
+                            msg = (await get_tg_link_message(cmd[index + 1]))[0]
+                            file_dir = await temp_download(msg)
+                            inputs[index + 1] = file_dir
+                            cmd[index + 1] = file_dir
                     self.subsize = self.size
                     res = await ffmpeg.ffmpeg_cmds(cmd, file_path)
                     if res:
@@ -800,6 +814,9 @@ class TaskConfig:
                                         newname = file_name.split(".", 1)[-1]
                                         newres = ospath.join(dirpath, newname)
                                         await move(res[0], newres)
+                for inp in inputs.values():
+                    if "/temp/" in inp and aiopath.exists(inp):
+                        await remove(inp)
         finally:
             if checked:
                 cpu_eater_lock.release()

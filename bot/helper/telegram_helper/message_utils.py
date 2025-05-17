@@ -20,7 +20,7 @@ try:
 except ImportError:
     FloodPremiumWait = FloodWait
 
-from ... import LOGGER, intervals, status_dict, task_dict_lock
+from ... import LOGGER, intervals, status_dict, task_dict_lock, DOWNLOAD_DIR
 from ...core.config_manager import Config
 from ...core.tg_client import TgClient
 from ..ext_utils.bot_utils import SetInterval
@@ -280,6 +280,11 @@ async def get_tg_link_message(link):
             return (links, "user") if links else (user_message, "user")
     else:
         raise TgLinkException("Private: Please report!")
+
+
+async def temp_download(msg):
+    path = f"{DOWNLOAD_DIR}temp"
+    return await msg.download(file_name=f"{path}/")
 
 
 async def update_status_message(sid, force=False):
